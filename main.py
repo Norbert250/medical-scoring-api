@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
+from difflib import SequenceMatcher
 
 app = FastAPI(title="Medical Condition Scoring API", version="1.0.0")
 
@@ -79,18 +80,51 @@ class MedicalConditionScorer:
         except ValueError:
             return 0.1
     
+    def _fuzzy_match_score(self, search_term: str, description: str) -> float:
+        search_lower = search_term.lower()
+        desc_lower = description.lower()
+        
+        # Exact substring match
+        if search_lower in desc_lower:
+            return 1.0
+        
+        # Word-level matching
+        search_words = search_lower.split()
+        desc_words = desc_lower.split()
+        
+        max_score = 0.0
+        for search_word in search_words:
+            for desc_word in desc_words:
+                # Fuzzy match each word
+                ratio = SequenceMatcher(None, search_word, desc_word).ratio()
+                if ratio > max_score:
+                    max_score = ratio
+        
+        return max_score
+    
     def find_condition_by_name(self, condition_names: List[str]) -> List[Dict]:
         matched_conditions = []
         
         for condition_name in condition_names:
-            condition_lower = condition_name.lower()
+            scored_matches = []
             
-            matches = [code for code, data in self.conditions.items() 
-                      if condition_lower in data['description'].lower()]
+            for code, data in self.conditions.items():
+                match_score = self._fuzzy_match_score(condition_name, data['description'])
+                
+                # Accept matches with score >= 0.75 (75% similarity)
+                if match_score >= 0.75:
+                    scored_matches.append({
+                        'code': code,
+                        'raf_score': data['raf_score'],
+                        'match_score': match_score
+                    })
             
-            for match in matches[:3]:
+            # Sort by match quality and take top 5
+            scored_matches.sort(key=lambda x: x['match_score'], reverse=True)
+            
+            for match in scored_matches[:5]:
                 matched_conditions.append({
-                    'raf_score': self.conditions[match]['raf_score']
+                    'raf_score': match['raf_score']
                 })
         
         return matched_conditions
