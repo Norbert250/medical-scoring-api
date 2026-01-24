@@ -210,8 +210,7 @@ Provide analysis in this exact JSON format:
   "side_effects": ["effect1", "effect2"],
   "monitoring_required": ["test1", "test2"],
   "recommendations": ["rec1", "rec2"],
-  "treatment_duration": "duration for each drug/medicine",
-  "test_frequency": "frequency for each test submitted"
+  "treatment_duration": "duration for each drug/medicine"
 }
 
 Return only valid JSON, no additional text."""
