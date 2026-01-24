@@ -257,11 +257,26 @@ Return only valid JSON, no additional text."""
         
         # Parse JSON response
         try:
-            analysis_result = json.loads(response.text)
+            # Clean the response text
+            response_text = response.text.strip()
+            
+            # Remove markdown code blocks if present
+            if response_text.startswith('```json'):
+                response_text = response_text[7:]
+            if response_text.startswith('```'):
+                response_text = response_text[3:]
+            if response_text.endswith('```'):
+                response_text = response_text[:-3]
+            
+            response_text = response_text.strip()
+            
+            analysis_result = json.loads(response_text)
             return analysis_result
-        except json.JSONDecodeError:
-            # Fallback if JSON parsing fails
+        except json.JSONDecodeError as e:
+            # Return raw response for debugging
             return {
+                "debug_response": response.text,
+                "json_error": str(e),
                 "medical_conditions": [],
                 "risk_score": 50,
                 "refill_frequency": "as_needed",
