@@ -270,14 +270,20 @@ Return only valid JSON, no additional text."""
 @app.get("/models")
 async def list_available_models():
     """Debug endpoint to check available Gemini models"""
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return {"error": "GEMINI_API_KEY not set in environment variables"}
+    
     try:
         models = []
         for model in genai.list_models():
-            if 'generateContent' in model.supported_generation_methods:
-                models.append(model.name)
-        return {"available_models": models}
+            models.append({
+                "name": model.name,
+                "supported_methods": model.supported_generation_methods
+            })
+        return {"api_key_status": "configured", "total_models": len(models), "models": models}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": f"Failed to list models: {str(e)}", "api_key_status": "configured" if api_key else "missing"}
 
 @app.post("/score")
 async def score_medical_needs(input_data: ScoringInput):
