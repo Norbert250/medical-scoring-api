@@ -206,7 +206,6 @@ Input Data:
 Analyze this medical data using your expert medical knowledge and provide accurate, evidence-based predictions in this exact JSON format:
 {
   "medical_conditions": ["actual predicted conditions based on the drug/tests"],
-  "risk_score": actual_risk_score_0_to_100,
   "refill_frequency": "actual predicted frequency based on medical knowledge",
   "drug_interactions": ["real drug interactions from medical knowledge"],
   "side_effects": ["actual known side effects"],
