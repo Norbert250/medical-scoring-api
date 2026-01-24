@@ -177,7 +177,44 @@ class AnalysisInput(BaseModel):
 
 @app.post("/analyze")
 async def analyze_medical_data(input_data: AnalysisInput):
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
+    
     try:
+        # List available models first
+        available_models = []
+        try:
+            for model in genai.list_models():
+                if 'generateContent' in model.supported_generation_methods:
+                    available_models.append(model.name)
+        except:
+            pass
+        
+        # Try different model names
+        model_names = ['gemini-pro', 'models/gemini-pro', 'gemini-1.5-flash', 'models/gemini-1.5-flash']
+        
+        model = None
+        for model_name in model_names:
+            try:
+                model = genai.GenerativeModel(model_name)
+                break
+            except:
+                continue
+        
+        if not model:
+            return {
+                "error": "No available models",
+                "available_models": available_models,
+                "medical_conditions": [],
+                "risk_score": 50,
+                "refill_frequency": "as_needed",
+                "drug_interactions": [],
+                "side_effects": [],
+                "monitoring_required": [],
+                "recommendations": ["Consult healthcare provider"]
+            }
+        
         # Build analysis prompt
         prompt = """You are a medical analysis AI. Analyze the following medical data and provide a structured JSON response.
 
@@ -209,8 +246,6 @@ Provide analysis in this exact JSON format:
 
 Return only valid JSON, no additional text."""
         
-        # Call Gemini API
-        model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(prompt)
         
         # Parse JSON response
@@ -231,6 +266,18 @@ Return only valid JSON, no additional text."""
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+@app.get("/models")
+async def list_available_models():
+    """Debug endpoint to check available Gemini models"""
+    try:
+        models = []
+        for model in genai.list_models():
+            if 'generateContent' in model.supported_generation_methods:
+                models.append(model.name)
+        return {"available_models": models}
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.post("/score")
 async def score_medical_needs(input_data: ScoringInput):
