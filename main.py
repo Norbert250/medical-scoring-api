@@ -184,7 +184,9 @@ async def analyze_medical_data(input_data: AnalysisInput):
         raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
     
     # Build analysis prompt
-    prompt = """You are a medical analysis AI. Analyze the following medical data and provide a structured JSON response.
+    prompt = """You are an expert medical AI assistant. Analyze the provided medical data using your medical knowledge and provide accurate predictions and analysis.
+
+IMPORTANT: All responses must be based on your AI medical knowledge and predictions. Do not use placeholder data.
 
 Input Data:
 """
@@ -201,20 +203,20 @@ Input Data:
         prompt += f"Additional Info: {input_data.additional_info}\n"
     
     prompt += """\n
-Provide analysis in this exact JSON format:
+Analyze this medical data using your expert medical knowledge and provide accurate, evidence-based predictions in this exact JSON format:
 {
-  "medical_conditions": ["condition1", "condition2"],
-  "risk_score": 0-100,
-  "refill_frequency": "daily/weekly/monthly/as_needed",
-  "drug_interactions": ["interaction1", "interaction2"],
-  "side_effects": ["effect1", "effect2"],
-  "monitoring_required": ["test1", "test2"],
-  "recommendations": ["rec1", "rec2"],
-  "treatment_duration": "duration for each drug/medicine (if chronic: describe as long-term/lifelong, if not chronic: specify in months only)",
-  "is_chronic": true/false
+  "medical_conditions": ["actual predicted conditions based on the drug/tests"],
+  "risk_score": actual_risk_score_0_to_100,
+  "refill_frequency": "actual predicted frequency based on medical knowledge",
+  "drug_interactions": ["real drug interactions from medical knowledge"],
+  "side_effects": ["actual known side effects"],
+  "monitoring_required": ["real medical tests needed for monitoring"],
+  "recommendations": ["evidence-based medical recommendations"],
+  "treatment_duration": "actual duration based on medical condition (if chronic: describe as long-term/lifelong, if not chronic: specify in months only)",
+  "is_chronic": actual_boolean_based_on_medical_condition
 }
 
-Return only valid JSON, no additional text."""
+Provide real medical analysis, not generic responses. Return only valid JSON, no additional text."""
     
     model = genai.GenerativeModel('models/gemini-2.5-flash')
     response = model.generate_content(prompt)
