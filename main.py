@@ -207,7 +207,6 @@ Analyze this medical data using your expert medical knowledge and provide accura
 {
   "medical_conditions": ["actual predicted conditions based on the drug/tests"],
   "refill_frequency": "actual predicted frequency based on medical knowledge",
-  "monitoring_required": ["real medical tests needed for monitoring"],
   "treatment_duration": "actual duration based on medical condition (if chronic: describe as long-term/lifelong, if not chronic: specify in months only)",
   "is_chronic": actual_boolean_based_on_medical_condition
 }
