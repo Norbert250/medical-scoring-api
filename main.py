@@ -210,7 +210,14 @@ Provide analysis in this exact JSON format:
 Return only valid JSON, no additional text."""
         
         # Call Gemini API
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        try:
+            model = genai.GenerativeModel('gemini-1.5-pro')
+        except:
+            try:
+                model = genai.GenerativeModel('gemini-pro')
+            except:
+                model = genai.GenerativeModel('models/gemini-1.5-flash-latest')
+        
         response = model.generate_content(prompt)
         
         # Parse JSON response
