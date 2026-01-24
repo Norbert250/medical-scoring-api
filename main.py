@@ -1,9 +1,15 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 from difflib import SequenceMatcher
+import google.generativeai as genai
+import os
+import json
+
+# Configure Gemini API
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 app = FastAPI(title="Medical Condition Scoring API", version="1.0.0")
 
@@ -161,6 +167,70 @@ except:
 class ScoringInput(BaseModel):
     age: int
     conditions: List[str]
+
+class AnalysisInput(BaseModel):
+    drug_name: Optional[str] = None
+    manufacturer: Optional[str] = None
+    quantity: Optional[str] = None
+    tests: Optional[List[str]] = None
+    additional_info: Optional[str] = None
+
+@app.post("/analyze")
+async def analyze_medical_data(input_data: AnalysisInput):
+    try:
+        # Build analysis prompt
+        prompt = """You are a medical analysis AI. Analyze the following medical data and provide a structured JSON response.
+
+Input Data:
+"""
+        
+        if input_data.drug_name:
+            prompt += f"Drug Name: {input_data.drug_name}\n"
+        if input_data.manufacturer:
+            prompt += f"Manufacturer: {input_data.manufacturer}\n"
+        if input_data.quantity:
+            prompt += f"Quantity: {input_data.quantity}\n"
+        if input_data.tests:
+            prompt += f"Tests: {', '.join(input_data.tests)}\n"
+        if input_data.additional_info:
+            prompt += f"Additional Info: {input_data.additional_info}\n"
+        
+        prompt += """\n
+Provide analysis in this exact JSON format:
+{
+  "medical_conditions": ["condition1", "condition2"],
+  "risk_score": 0-100,
+  "refill_frequency": "daily/weekly/monthly/as_needed",
+  "drug_interactions": ["interaction1", "interaction2"],
+  "side_effects": ["effect1", "effect2"],
+  "monitoring_required": ["test1", "test2"],
+  "recommendations": ["rec1", "rec2"]
+}
+
+Return only valid JSON, no additional text."""
+        
+        # Call Gemini API
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        
+        # Parse JSON response
+        try:
+            analysis_result = json.loads(response.text)
+            return analysis_result
+        except json.JSONDecodeError:
+            # Fallback if JSON parsing fails
+            return {
+                "medical_conditions": [],
+                "risk_score": 50,
+                "refill_frequency": "as_needed",
+                "drug_interactions": [],
+                "side_effects": [],
+                "monitoring_required": [],
+                "recommendations": ["Consult healthcare provider"]
+            }
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 @app.post("/score")
 async def score_medical_needs(input_data: ScoringInput):
