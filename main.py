@@ -194,7 +194,12 @@ async def analyze_medical_data(input_data: AnalysisInput):
             pass
         
         # Try different model names
-        model_names = ['gemini-pro', 'models/gemini-pro', 'gemini-1.5-flash', 'models/gemini-1.5-flash']
+        model_names = [
+            'models/gemini-2.5-flash',
+            'models/gemini-flash-latest', 
+            'models/gemini-pro-latest',
+            'models/gemini-2.0-flash'
+        ]
         
         model = None
         for model_name in model_names:
