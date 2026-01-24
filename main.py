@@ -9,7 +9,9 @@ import os
 import json
 
 # Configure Gemini API
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+api_key = os.getenv("GEMINI_API_KEY")
+if api_key:
+    genai.configure(api_key=api_key)
 
 app = FastAPI(title="Medical Condition Scoring API", version="1.0.0")
 
@@ -266,6 +268,15 @@ Return only valid JSON, no additional text."""
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+@app.get("/debug-env")
+async def debug_environment():
+    """Debug endpoint to check environment variables"""
+    return {
+        "gemini_key_exists": bool(os.getenv("GEMINI_API_KEY")),
+        "gemini_key_length": len(os.getenv("GEMINI_API_KEY", "")),
+        "all_env_keys": list(os.environ.keys())
+    }
 
 @app.get("/models")
 async def list_available_models():
