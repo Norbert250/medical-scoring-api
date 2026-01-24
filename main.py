@@ -183,63 +183,24 @@ async def analyze_medical_data(input_data: AnalysisInput):
     if not api_key:
         raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
     
-    try:
-        # List available models first
-        available_models = []
-        try:
-            for model in genai.list_models():
-                if 'generateContent' in model.supported_generation_methods:
-                    available_models.append(model.name)
-        except:
-            pass
-        
-        # Try different model names
-        model_names = [
-            'models/gemini-2.5-flash',
-            'models/gemini-flash-latest', 
-            'models/gemini-pro-latest',
-            'models/gemini-2.0-flash'
-        ]
-        
-        model = None
-        for model_name in model_names:
-            try:
-                model = genai.GenerativeModel(model_name)
-                break
-            except:
-                continue
-        
-        if not model:
-            return {
-                "error": "No available models",
-                "available_models": available_models,
-                "medical_conditions": [],
-                "risk_score": 50,
-                "refill_frequency": "as_needed",
-                "drug_interactions": [],
-                "side_effects": [],
-                "monitoring_required": [],
-                "recommendations": ["Consult healthcare provider"]
-            }
-        
-        # Build analysis prompt
-        prompt = """You are a medical analysis AI. Analyze the following medical data and provide a structured JSON response.
+    # Build analysis prompt
+    prompt = """You are a medical analysis AI. Analyze the following medical data and provide a structured JSON response.
 
 Input Data:
 """
-        
-        if input_data.drug_name:
-            prompt += f"Drug Name: {input_data.drug_name}\n"
-        if input_data.manufacturer:
-            prompt += f"Manufacturer: {input_data.manufacturer}\n"
-        if input_data.quantity:
-            prompt += f"Quantity: {input_data.quantity}\n"
-        if input_data.tests:
-            prompt += f"Tests: {', '.join(input_data.tests)}\n"
-        if input_data.additional_info:
-            prompt += f"Additional Info: {input_data.additional_info}\n"
-        
-        prompt += """\n
+    
+    if input_data.drug_name:
+        prompt += f"Drug Name: {input_data.drug_name}\n"
+    if input_data.manufacturer:
+        prompt += f"Manufacturer: {input_data.manufacturer}\n"
+    if input_data.quantity:
+        prompt += f"Quantity: {input_data.quantity}\n"
+    if input_data.tests:
+        prompt += f"Tests: {', '.join(input_data.tests)}\n"
+    if input_data.additional_info:
+        prompt += f"Additional Info: {input_data.additional_info}\n"
+    
+    prompt += """\n
 Provide analysis in this exact JSON format:
 {
   "medical_conditions": ["condition1", "condition2"],
@@ -252,42 +213,24 @@ Provide analysis in this exact JSON format:
 }
 
 Return only valid JSON, no additional text."""
-        
-        response = model.generate_content(prompt)
-        
-        # Parse JSON response
-        try:
-            # Clean the response text
-            response_text = response.text.strip()
-            
-            # Remove markdown code blocks if present
-            if response_text.startswith('```json'):
-                response_text = response_text[7:]
-            if response_text.startswith('```'):
-                response_text = response_text[3:]
-            if response_text.endswith('```'):
-                response_text = response_text[:-3]
-            
-            response_text = response_text.strip()
-            
-            analysis_result = json.loads(response_text)
-            return analysis_result
-        except json.JSONDecodeError as e:
-            # Return raw response for debugging
-            return {
-                "debug_response": response.text,
-                "json_error": str(e),
-                "medical_conditions": [],
-                "risk_score": 50,
-                "refill_frequency": "as_needed",
-                "drug_interactions": [],
-                "side_effects": [],
-                "monitoring_required": [],
-                "recommendations": ["Consult healthcare provider"]
-            }
-            
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+    
+    model = genai.GenerativeModel('models/gemini-2.5-flash')
+    response = model.generate_content(prompt)
+    
+    # Clean the response text
+    response_text = response.text.strip()
+    
+    # Remove markdown code blocks if present
+    if response_text.startswith('```json'):
+        response_text = response_text[7:]
+    if response_text.startswith('```'):
+        response_text = response_text[3:]
+    if response_text.endswith('```'):
+        response_text = response_text[:-3]
+    
+    response_text = response_text.strip()
+    
+    return json.loads(response_text)
 
 @app.get("/debug-env")
 async def debug_environment():
