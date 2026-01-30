@@ -210,7 +210,6 @@ Analyze this medical data using your expert medical knowledge and provide accura
   "treatment_duration": "actual duration based on medical condition (if chronic: describe as long-term/lifelong, if not chronic: specify in months only)",
   "is_chronic": actual_boolean_based_on_medical_condition,
   "consultation_needed": actual_boolean_if_doctor_consultation_required,
-  "lab_tests_needed": ["specific lab tests required"],
   "diagnostics_needed": ["imaging or diagnostic procedures required"],
   "medication_assessment": "evaluation of current medication effectiveness and safety",
   "pricing_ksh": {
