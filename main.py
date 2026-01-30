@@ -208,10 +208,21 @@ Analyze this medical data using your expert medical knowledge and provide accura
   "medical_conditions": ["actual predicted conditions based on the drug/tests"],
   "refill_frequency": "actual predicted frequency based on medical knowledge",
   "treatment_duration": "actual duration based on medical condition (if chronic: describe as long-term/lifelong, if not chronic: specify in months only)",
-  "is_chronic": actual_boolean_based_on_medical_condition
+  "is_chronic": actual_boolean_based_on_medical_condition,
+  "consultation_needed": actual_boolean_if_doctor_consultation_required,
+  "lab_tests_needed": ["specific lab tests required"],
+  "diagnostics_needed": ["imaging or diagnostic procedures required"],
+  "medication_assessment": "evaluation of current medication effectiveness and safety",
+  "pricing_ksh": {
+    "consultation_cost": actual_consultation_price_in_kenyan_shillings,
+    "medication_cost": actual_medication_price_in_kenyan_shillings,
+    "lab_tests_cost": actual_lab_tests_price_in_kenyan_shillings,
+    "diagnostics_cost": actual_diagnostics_price_in_kenyan_shillings,
+    "total_cost": sum_of_all_costs_in_kenyan_shillings
+  }
 }
 
-Provide real medical analysis, not generic responses. Return only valid JSON, no additional text."""
+Provide real medical analysis with accurate Kenyan healthcare pricing, not generic responses. Return only valid JSON, no additional text."""
     
     model = genai.GenerativeModel('models/gemini-2.5-flash')
     response = model.generate_content(prompt)
