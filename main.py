@@ -215,19 +215,10 @@ Analyze this medical data using your expert medical knowledge and provide accura
   "medication_assessment": "evaluation of current medication effectiveness and safety",
   "pricing_ksh": {
     "medications": {
-      "drug_name_1": price_in_ksh,
-      "drug_name_2": price_in_ksh
-    },
-    "lab_tests": {
-      "test_name_1": price_in_ksh,
-      "test_name_2": price_in_ksh
-    },
-    "diagnostics": {
-      "diagnostic_name_1": price_in_ksh,
-      "diagnostic_name_2": price_in_ksh
+      "only_for_drugs_provided_by_user": "price_in_ksh_only_if_drug_name_given"
     },
     "consultation_cost": actual_consultation_price_in_kenyan_shillings,
-    "total_cost": sum_of_all_individual_costs_in_kenyan_shillings
+    "total_cost": sum_of_consultation_and_medication_costs_only
   }
 }
 
