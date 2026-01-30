@@ -214,11 +214,20 @@ Analyze this medical data using your expert medical knowledge and provide accura
   "diagnostics_needed": ["imaging or diagnostic procedures required"],
   "medication_assessment": "evaluation of current medication effectiveness and safety",
   "pricing_ksh": {
+    "medications": {
+      "drug_name_1": price_in_ksh,
+      "drug_name_2": price_in_ksh
+    },
+    "lab_tests": {
+      "test_name_1": price_in_ksh,
+      "test_name_2": price_in_ksh
+    },
+    "diagnostics": {
+      "diagnostic_name_1": price_in_ksh,
+      "diagnostic_name_2": price_in_ksh
+    },
     "consultation_cost": actual_consultation_price_in_kenyan_shillings,
-    "medication_cost": actual_medication_price_in_kenyan_shillings,
-    "lab_tests_cost": actual_lab_tests_price_in_kenyan_shillings,
-    "diagnostics_cost": actual_diagnostics_price_in_kenyan_shillings,
-    "total_cost": sum_of_all_costs_in_kenyan_shillings
+    "total_cost": sum_of_all_individual_costs_in_kenyan_shillings
   }
 }
 
