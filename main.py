@@ -223,7 +223,7 @@ Analyze this medical data using your expert medical knowledge and provide accura
   }
 }
 
-Provide real medical analysis with accurate Kenyan healthcare pricing, not generic responses. Return only valid JSON, no additional text."""
+Provide real medical analysis with accurate Kenyan healthcare market pricing based on current Kenya medical costs (private hospitals, pharmacies, and labs in Nairobi/major cities). Use realistic Kenyan Shilling amounts, not generic responses. Return only valid JSON, no additional text."""
     
     model = genai.GenerativeModel('models/gemini-2.5-flash')
     response = model.generate_content(prompt)
