@@ -183,26 +183,27 @@ async def analyze_medical_data(input_data: AnalysisInput):
     if not api_key:
         raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
     
-    # Build analysis prompt
-    prompt = """You are an expert medical AI assistant. Analyze the provided medical data using your medical knowledge and provide accurate predictions and analysis.
+    try:
+        # Build analysis prompt
+        prompt = """You are an expert medical AI assistant. Analyze the provided medical data using your medical knowledge and provide accurate predictions and analysis.
 
 IMPORTANT: All responses must be based on your AI medical knowledge and predictions. Do not use placeholder data.
 
 Input Data:
 """
-    
-    if input_data.drug_name:
-        prompt += f"Drug Name: {input_data.drug_name}\n"
-    if input_data.manufacturer:
-        prompt += f"Manufacturer: {input_data.manufacturer}\n"
-    if input_data.quantity:
-        prompt += f"Quantity: {input_data.quantity}\n"
-    if input_data.tests:
-        prompt += f"Tests: {', '.join(input_data.tests)}\n"
-    if input_data.additional_info:
-        prompt += f"Additional Info: {input_data.additional_info}\n"
-    
-    prompt += """\n
+        
+        if input_data.drug_name:
+            prompt += f"Drug Name: {input_data.drug_name}\n"
+        if input_data.manufacturer:
+            prompt += f"Manufacturer: {input_data.manufacturer}\n"
+        if input_data.quantity:
+            prompt += f"Quantity: {input_data.quantity}\n"
+        if input_data.tests:
+            prompt += f"Tests: {', '.join(input_data.tests)}\n"
+        if input_data.additional_info:
+            prompt += f"Additional Info: {input_data.additional_info}\n"
+        
+        prompt += """\n
 Analyze this medical data using your expert medical knowledge and provide accurate, evidence-based predictions in this exact JSON format:
 {
   "medical_conditions": ["actual predicted conditions based on the drug/tests"],
@@ -223,24 +224,28 @@ Analyze this medical data using your expert medical knowledge and provide accura
 }
 
 Provide real medical analysis with accurate Kenyan healthcare market pricing based on current Kenya medical costs (private hospitals, pharmacies, and labs in Nairobi/major cities). Use realistic Kenyan Shilling amounts, not generic responses. Return only valid JSON, no additional text."""
-    
-    model = genai.GenerativeModel('models/gemini-2.5-flash')
-    response = model.generate_content(prompt)
-    
-    # Clean the response text
-    response_text = response.text.strip()
-    
-    # Remove markdown code blocks if present
-    if response_text.startswith('```json'):
-        response_text = response_text[7:]
-    if response_text.startswith('```'):
-        response_text = response_text[3:]
-    if response_text.endswith('```'):
-        response_text = response_text[:-3]
-    
-    response_text = response_text.strip()
-    
-    return json.loads(response_text)
+        
+        model = genai.GenerativeModel('models/gemini-2.5-flash')
+        response = model.generate_content(prompt)
+        
+        # Clean the response text
+        response_text = response.text.strip()
+        
+        # Remove markdown code blocks if present
+        if response_text.startswith('```json'):
+            response_text = response_text[7:]
+        if response_text.startswith('```'):
+            response_text = response_text[3:]
+        if response_text.endswith('```'):
+            response_text = response_text[:-3]
+        
+        response_text = response_text.strip()
+        
+        return json.loads(response_text)
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=500, detail=f"JSON parsing error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 @app.get("/debug-env")
 async def debug_environment():
