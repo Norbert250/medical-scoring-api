@@ -185,9 +185,12 @@ async def analyze_medical_data(input_data: AnalysisInput):
     
     try:
         # Build analysis prompt
-        prompt = """You are an expert medical AI assistant. Analyze the provided medical data using your medical knowledge and provide accurate predictions and analysis.
+        prompt = """You are an expert medical AI assistant. Analyze ALL the provided medical data COMBINED (all drugs, tests, quantities together) using your medical knowledge and provide accurate predictions and analysis.
 
-IMPORTANT: All responses must be based on your AI medical knowledge and predictions. Do not use placeholder data.
+IMPORTANT: 
+- Analyze ALL inputs together as a combined treatment/diagnosis plan
+- Predict the medical condition/disease that the COMBINATION of medicines and tests is treating or diagnosing
+- All responses must be based on your AI medical knowledge. Do not use placeholder data.
 
 Input Data:
 """
@@ -204,9 +207,14 @@ Input Data:
             prompt += f"Additional Info: {input_data.additional_info}\n"
         
         prompt += """\n
-Analyze this medical data using your expert medical knowledge and provide accurate, evidence-based predictions in this exact JSON format:
+Based on the COMBINATION of all drugs, tests, and information provided above, analyze and predict:
+1. The medical condition/disease being treated or diagnosed by this combination
+2. All other relevant medical insights
+
+Provide accurate, evidence-based predictions in this exact JSON format:
 {
-  "medical_conditions": ["actual predicted conditions based on the drug/tests"],
+  "predicted_disease": "the primary disease/condition being treated by this combination of medicines and tests",
+  "medical_conditions": ["all related conditions associated with this combination"],
   "refill_frequency": "actual predicted frequency based on medical knowledge",
   "treatment_duration": "actual duration based on medical condition (if chronic: describe as long-term/lifelong, if not chronic: specify in months only)",
   "is_chronic": actual_boolean_based_on_medical_condition,
