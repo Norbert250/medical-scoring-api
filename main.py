@@ -211,7 +211,7 @@ Based on the COMBINATION of all drugs, tests, and information provided above, an
 
 Provide accurate, evidence-based predictions in this exact JSON format:
 {
-  "predicted_disease": "the primary disease/condition being treated by this combination of medicines and tests",
+  "predicted_disease": ["Disease Name 1", "Disease Name 2"],
   "refill_frequency": "actual predicted frequency based on medical knowledge",
   "treatment_duration": "actual duration based on medical condition (if chronic: describe as long-term/lifelong, if not chronic: specify in months only)",
   "is_chronic": actual_boolean_based_on_medical_condition,
