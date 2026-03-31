@@ -171,9 +171,8 @@ class ScoringInput(BaseModel):
     conditions: List[str]
 
 class AnalysisInput(BaseModel):
-    drug_name: Optional[str] = None
+    drugs: Optional[List[Dict[str, str]]] = None
     manufacturer: Optional[str] = None
-    quantity: Optional[str] = None
     tests: Optional[List[str]] = None
     additional_info: Optional[str] = None
 
@@ -195,12 +194,11 @@ IMPORTANT:
 Input Data:
 """
         
-        if input_data.drug_name:
-            prompt += f"Drug Name: {input_data.drug_name}\n"
+        if input_data.drugs:
+            for drug in input_data.drugs:
+                prompt += f"Drug: {drug.get('name', '')} - Quantity: {drug.get('quantity', '')}\n"
         if input_data.manufacturer:
             prompt += f"Manufacturer: {input_data.manufacturer}\n"
-        if input_data.quantity:
-            prompt += f"Quantity: {input_data.quantity}\n"
         if input_data.tests:
             prompt += f"Tests: {', '.join(input_data.tests)}\n"
         if input_data.additional_info:
